@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+
+  backend:
+    build:
+      context: ./taskmanager-graphql
+      dockerfile: ../Dockerfile
+    container_name: backend_taskmanager
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./taskmanager-graphql:/app
+      - /app/node_modules
+    depends_on:
+      - mongodb
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/taskmanager
+      - JWT_SECRET=supersecreto123
+
+  frontend:
+    build: ./frontend
+    container_name: frontend_taskmanager
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+
+  mongodb:
+    image: mongo
+    container_name: mongodb_taskmanager
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
